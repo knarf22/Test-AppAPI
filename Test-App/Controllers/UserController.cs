@@ -19,7 +19,7 @@ namespace Test_App.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var person = await _context.Persons.FindAsync(id);
-
+            var str1 = "check changes";
             if (person == null)
                 return NotFound();
 
