@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
 using Test_App.Models;
+using Test_App.Models.DTO;
+using Test_App.Models.Entities;
 
 namespace Test_App.Controllers
 {
@@ -7,10 +10,10 @@ namespace Test_App.Controllers
     [Route("users")]
     public class UserController : Controller
     {
-        private readonly test_dbaseContext _context;
+        private readonly TestDbaseContext _context;
 
         // ✅ DbContext is injected here
-        public UserController(test_dbaseContext context)
+        public UserController(TestDbaseContext context)
         {
             _context = context;
         }
@@ -19,12 +22,36 @@ namespace Test_App.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var person = await _context.Persons.FindAsync(id);
-            var str1 = "check changes";
+            //var str1 = "check changes";
             if (person == null)
                 return NotFound();
 
             return Ok(person);
         }
+
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] UserLoginRequest request)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
+
+            if (user == null)
+                return NotFound(new { Message = "User not found" });
+
+            // TODO: Replace with real password hashing check
+            if (user.PasswordHash != request.Password)
+                return Unauthorized(new { Message = "Invalid password" });
+
+            // Return only safe data (DTO)
+            var response = new UserLoginResponse
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Token = "dummy-jwt-token" // later replace with real JWT
+            };
+
+            return Ok(response);
+        }
+
 
         [HttpPost]
         [Route("create")]
