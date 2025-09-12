@@ -20,8 +20,9 @@ public partial class TestDbaseContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=test_dbase;User Id=franky;Password=password123;TrustServerCertificate=True;");
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        
+    //    => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=test_dbase;User Id=franky;Password=password123;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

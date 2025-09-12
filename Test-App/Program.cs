@@ -6,7 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Register DbContext with connection string
 builder.Services.AddDbContext<TestDbaseContext>(options =>
-    options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=test_dbase;User Id=franky;Password=password123;TrustServerCertificate=True;"));
+    //options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=test_dbase;User Id=franky;Password=password123;TrustServerCertificate=True;"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection")));
 
 // Add CORS service
 builder.Services.AddCors(options =>
