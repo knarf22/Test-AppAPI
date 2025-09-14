@@ -65,6 +65,50 @@ namespace Test_App.Controllers
             return Ok(person);
         }
 
-      
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
+        {
+            if (request.Password != request.ConfirmPassword)
+            {
+                return BadRequest(new { Message = "Passwords do not match." });
+            }
+
+            var existingUser = _context.Users.FirstOrDefault(u => u.Username == request.Username);
+            if (existingUser != null)
+            {
+                return Conflict(new { Message = "Username already exists." });
+            }
+
+            // Create a placeholder Person with nulls
+            var person = new Person
+            {
+                FirstName = null,
+                LastName = null,
+                MiddleName = null,
+                City = null,
+                Age = null
+            };
+
+            _context.Persons.Add(person);
+            await _context.SaveChangesAsync();
+
+            var user = new User
+            {
+                Username = request.Username,
+                PasswordHash = request.Password, // ⚠️ TODO: hash this
+                PersonId = person.PersonId
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new UserRegisterResponse
+            {
+                UserId = user.UserId,
+                Username = user.Username
+            });
+        }
+
+
     }
 }
