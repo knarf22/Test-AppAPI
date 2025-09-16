@@ -30,7 +30,7 @@ namespace Test_App.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] UserLoginRequest request)
+        public IActionResult Login([FromBody] UserLoginDTO request)
         {
             var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
 
@@ -46,7 +46,8 @@ namespace Test_App.Controllers
             {
                 UserId = user.UserId,
                 Username = user.Username,
-                Token = "dummy-jwt-token" // later replace with real JWT
+                Token = "dummy-jwt-token", // later replace with real JWT
+                PersonId = user.PersonId
             };
 
             return Ok(response);

@@ -1,6 +1,6 @@
 ﻿namespace Test_App.Models.DTO
 {
-    public class UserLoginRequest
+    public class UserLoginDTO
     {
         public string Username { get; set; } = null!;
         public string Password { get; set; } = null!;
