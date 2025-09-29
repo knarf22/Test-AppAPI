@@ -18,6 +18,7 @@ namespace Test_App.Models
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Todo> Todos { get; set; }
         public virtual DbSet<TodoHistory> TodoHistories { get; set; }
+        public virtual DbSet<ContactMessage> ContactMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +27,7 @@ namespace Test_App.Models
             {
                 entity.HasKey(e => e.PersonId).HasName("PK_Persons");
 
-                entity.ToTable("persons");
+                entity.ToTable("Persons");
 
                 entity.Property(e => e.PersonId).HasColumnName("PersonID");
                 entity.Property(e => e.City).HasMaxLength(255).IsUnicode(false);
@@ -39,6 +40,8 @@ namespace Test_App.Models
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.UserId).HasName("PK_Users");
+
+                entity.ToTable("Users");
 
                 entity.Property(e => e.UserId).HasColumnName("UserId");
                 entity.Property(e => e.PasswordHash).HasMaxLength(200);
@@ -69,7 +72,6 @@ namespace Test_App.Models
                       .HasConstraintName("FK_Todos_Users");
             });
 
-
             // TodoHistory
             modelBuilder.Entity<TodoHistory>(entity =>
             {
@@ -84,10 +86,29 @@ namespace Test_App.Models
                       .HasConstraintName("FK_TodoHistory_Todos");
 
                 entity.HasOne(h => h.User)
-                      .WithMany(u => u.TodoHistories) // <-- Add this in User.cs
+                      .WithMany(u => u.TodoHistories)
                       .HasForeignKey(h => h.UserId)
                       .OnDelete(DeleteBehavior.Cascade)
                       .HasConstraintName("FK_TodoHistory_Users");
+            });
+
+            //  ContactMessage
+            modelBuilder.Entity<ContactMessage>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_ContactMessages");
+
+                entity.ToTable("ContactMessages");
+
+                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.Email).HasMaxLength(200);
+                entity.Property(e => e.Message).HasMaxLength(2000);
+                entity.Property(e => e.Status).HasMaxLength(50);
+
+                entity.HasOne(cm => cm.User)
+                      .WithMany(u => u.ContactMessages)
+                      .HasForeignKey(cm => cm.UserId)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .HasConstraintName("FK_ContactMessages_Users");
             });
 
             OnModelCreatingPartial(modelBuilder);

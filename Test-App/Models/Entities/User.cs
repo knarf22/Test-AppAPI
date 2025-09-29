@@ -16,5 +16,7 @@ public partial class User
     public virtual Person Person { get; set; } = null!;
     public virtual ICollection<Todo> Todos { get; set; } = new List<Todo>();
     public virtual ICollection<TodoHistory> TodoHistories { get; set; } = new List<TodoHistory>();
+    public virtual ICollection<ContactMessage> ContactMessages { get; set; } = new List<ContactMessage>();
+
 
 }
