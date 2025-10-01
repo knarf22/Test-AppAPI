@@ -17,6 +17,8 @@ public partial class User
     public virtual ICollection<Todo> Todos { get; set; } = new List<Todo>();
     public virtual ICollection<TodoHistory> TodoHistories { get; set; } = new List<TodoHistory>();
     public virtual ICollection<ContactMessage> ContactMessages { get; set; } = new List<ContactMessage>();
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
 
 }

@@ -19,6 +19,8 @@ namespace Test_App.Models
         public virtual DbSet<Todo> Todos { get; set; }
         public virtual DbSet<TodoHistory> TodoHistories { get; set; }
         public virtual DbSet<ContactMessage> ContactMessages { get; set; }
+        public virtual DbSet<Post> Posts { get; set; }
+        public virtual DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -109,6 +111,48 @@ namespace Test_App.Models
                       .HasForeignKey(cm => cm.UserId)
                       .OnDelete(DeleteBehavior.Cascade)
                       .HasConstraintName("FK_ContactMessages_Users");
+            });
+
+            // Post
+            modelBuilder.Entity<Post>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_Posts");
+                entity.ToTable("Posts");
+                entity.Property(e => e.Title)
+                      .HasMaxLength(300)
+                      .IsUnicode(false);
+                entity.Property(e => e.Body)
+                      .IsUnicode(true);
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETDATE()");
+                entity.HasOne(p => p.User)
+                      .WithMany(u => u.Posts)
+                      .HasForeignKey(p => p.UserId)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .HasConstraintName("FK_Posts_Users");
+            });
+            // Comment
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.HasKey(e => e.CommentId).HasName("PK_Comments");
+                entity.ToTable("Comments");
+                entity.Property(e => e.Text)
+                      .HasMaxLength(1000)
+                      .IsUnicode(true);
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETDATE()");
+
+                entity.HasOne(c => c.Post)
+                      .WithMany(p => p.Comments)
+                      .HasForeignKey(c => c.PostId)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .HasConstraintName("FK_Comments_Posts");
+                entity.HasOne(c => c.User)
+                      .WithMany(u => u.Comments)
+                      .HasForeignKey(c => c.UserId)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .HasConstraintName("FK_Comments_Users");
             });
 
             OnModelCreatingPartial(modelBuilder);
