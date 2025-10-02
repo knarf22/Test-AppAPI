@@ -116,7 +116,7 @@ namespace Test_App.Models
             // Post
             modelBuilder.Entity<Post>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("PK_Posts");
+                entity.HasKey(e => e.PostId).HasName("PK_Posts");
                 entity.ToTable("Posts");
                 entity.Property(e => e.Title)
                       .HasMaxLength(300)
