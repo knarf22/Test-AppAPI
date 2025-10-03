@@ -6,31 +6,66 @@ using Test_App.Models.Entities;
 
 namespace Test_App.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class PostsController : ControllerBase
-    {
-        private readonly TestDbaseContext _context;
-
-        public PostsController(TestDbaseContext context)
+        [ApiController]
+        [Route("api/[controller]")]
+        public class PostsController : ControllerBase
         {
-            _context = context;
-        }
+            private readonly TestDbaseContext _context;
 
-        // GET: api/posts
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<PostDTO>>> GetPosts()
-        {
-            var posts = await _context.Posts
-                .Include(p => p.Comments)
-                .Select(p => new PostDTO
+            public PostsController(TestDbaseContext context)
+            {
+                _context = context;
+            }
+
+            // GET: api/posts
+            [HttpGet]
+            public async Task<ActionResult<IEnumerable<PostDTO>>> GetPosts()
+            {
+                var posts = await _context.Posts
+                    .Include(p => p.User) // 👈 include User so Username is loaded
+                    .Include(p => p.Comments)
+                    .Select(p => new PostDTO
+                    {
+                        PostId = p.PostId,
+                        UserId = p.UserId,
+                        Username = p.User.Username, // 👈 get username here
+                        Title = p.Title,
+                        Body = p.Body,
+                        CreatedAt = p.CreatedAt,
+                        Comments = p.Comments.Select(c => new CommentDTO
+                        {
+                            CommentId = c.CommentId,
+                            PostId = c.PostId,
+                            UserId = c.UserId,
+                            Text = c.Text,
+                            CreatedAt = c.CreatedAt
+                        }).ToList()
+                    })
+                    .ToListAsync();
+
+                return Ok(posts);
+            }
+
+            // GET: api/posts/5
+            [HttpGet("{id}")]
+            public async Task<ActionResult<PostDTO>> GetPost(int id)
+            {
+                var post = await _context.Posts
+                    .Include(p => p.User)     // 👈 make sure User is included
+                    .Include(p => p.Comments)
+                    .FirstOrDefaultAsync(p => p.PostId == id);
+
+                if (post == null) return NotFound();
+
+                var dto = new PostDTO
                 {
-                    PostId = p.PostId,
-                    UserId = p.UserId,
-                    Title = p.Title,
-                    Body = p.Body,
-                    CreatedAt = p.CreatedAt,
-                    Comments = p.Comments.Select(c => new CommentDTO
+                    PostId = post.PostId,
+                    UserId = post.UserId,
+                    Username = post.User.Username, // 👈 add username here
+                    Title = post.Title,
+                    Body = post.Body,
+                    CreatedAt = post.CreatedAt,
+                    Comments = post.Comments.Select(c => new CommentDTO
                     {
                         CommentId = c.CommentId,
                         PostId = c.PostId,
@@ -38,41 +73,10 @@ namespace Test_App.Controllers
                         Text = c.Text,
                         CreatedAt = c.CreatedAt
                     }).ToList()
-                })
-                .ToListAsync();
+                };
 
-            return Ok(posts);
-        }
-
-        // GET: api/posts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<PostDTO>> GetPost(int id)
-        {
-            var post = await _context.Posts
-                .Include(p => p.Comments)
-                .FirstOrDefaultAsync(p => p.PostId == id);
-
-            if (post == null) return NotFound();
-
-            var dto = new PostDTO
-            {
-                PostId = post.PostId,
-                UserId = post.UserId,
-                Title = post.Title,
-                Body = post.Body,
-                CreatedAt = post.CreatedAt,
-                Comments = post.Comments.Select(c => new CommentDTO
-                {
-                    CommentId = c.CommentId,
-                    PostId = c.PostId,
-                    UserId = c.UserId,
-                    Text = c.Text,
-                    CreatedAt = c.CreatedAt
-                }).ToList()
-            };
-
-            return Ok(dto);
-        }
+                return Ok(dto);
+            }
 
         // POST: api/posts
         [HttpPost]

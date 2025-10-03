@@ -23,11 +23,13 @@ namespace Test_App.Controllers
         {
             var comments = await _context.Comments
                 .Where(c => c.PostId == postId)
+                .Include(c => c.User) // 👈 include user
                 .Select(c => new CommentDTO
                 {
                     CommentId = c.CommentId,
                     PostId = c.PostId,
                     UserId = c.UserId,
+                    Username = c.User.Username, // 👈 map username
                     Text = c.Text,
                     CreatedAt = c.CreatedAt
                 })
@@ -40,6 +42,9 @@ namespace Test_App.Controllers
         [HttpPost]
         public async Task<ActionResult<CommentDTO>> CreateComment(CreateCommentDTO dto)
         {
+            var user = await _context.Users.FindAsync(dto.UserId);
+            if (user == null) return NotFound("User not found");
+
             var comment = new Comment
             {
                 PostId = dto.PostId,
@@ -51,7 +56,17 @@ namespace Test_App.Controllers
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetCommentsForPost), new { postId = comment.PostId }, comment);
+            var result = new CommentDTO
+            {
+                CommentId = comment.CommentId,
+                PostId = comment.PostId,
+                UserId = comment.UserId,
+                Username = user.Username, // ✅ resolved from user
+                Text = comment.Text,
+                CreatedAt = comment.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetCommentsForPost), new { postId = comment.PostId }, result);
         }
 
         // PUT: api/comments/5
