@@ -15,7 +15,7 @@
 
         }
 
-    public class CreatePostDTO
+        public class CreatePostDTO
         {
             public int UserId { get; set; }
             public string Title { get; set; } = string.Empty;

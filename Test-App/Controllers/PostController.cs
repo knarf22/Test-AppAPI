@@ -24,6 +24,7 @@ namespace Test_App.Controllers
                 var posts = await _context.Posts
                     .Include(p => p.User) // 👈 include User so Username is loaded
                     .Include(p => p.Comments)
+                    .ThenInclude(c => c.User) // 👈 so we can access comment.User.Username
                     .Select(p => new PostDTO
                     {
                         PostId = p.PostId,
@@ -37,6 +38,7 @@ namespace Test_App.Controllers
                             CommentId = c.CommentId,
                             PostId = c.PostId,
                             UserId = c.UserId,
+                            Username = c.User.Username,
                             Text = c.Text,
                             CreatedAt = c.CreatedAt
                         }).ToList()
@@ -53,6 +55,7 @@ namespace Test_App.Controllers
                 var post = await _context.Posts
                     .Include(p => p.User)     // 👈 make sure User is included
                     .Include(p => p.Comments)
+                    .ThenInclude(c => c.User) // 👈 include User for comments too
                     .FirstOrDefaultAsync(p => p.PostId == id);
 
                 if (post == null) return NotFound();
@@ -70,6 +73,7 @@ namespace Test_App.Controllers
                         CommentId = c.CommentId,
                         PostId = c.PostId,
                         UserId = c.UserId,
+                        Username = c.User.Username,
                         Text = c.Text,
                         CreatedAt = c.CreatedAt
                     }).ToList()
